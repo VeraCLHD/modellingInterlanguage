@@ -7,6 +7,7 @@ import com.swabunga.spell.event.SpellChecker;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,9 +87,12 @@ public class JazzyCorpusSpellchecker {
     	
     	
     	List<String> listForText = CorpusReader.readFileAsWordsList(CorpusReader.getGerPath() + "test_P1_GER_high_10392.txt");
-    	for(String word: listForText){
+    	
+    	List<Word> suggestions = spellChecker.getSuggestions("knowledges", 0);
+    	System.out.println(suggestions.toString());
+    	/*for(String word: listForText){
     		String firstSuggestion = JazzyCorpusSpellchecker.getSuggestionWithMinDistance(word.toLowerCase(), 0).toString();
-    	}
+    	}*/
     	
 	}
 }
