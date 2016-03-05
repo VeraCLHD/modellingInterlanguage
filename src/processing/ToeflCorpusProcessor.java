@@ -21,7 +21,7 @@ public class ToeflCorpusProcessor {
 	 * Reads a file line-wise and returns a list of the lines.
 	 */
 	public void filterRelevantWords() {
-		System.out.println("Reading each file " + file);
+		//System.out.println("Reading each file " + file);
 		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(this.getFile()), "UTF-8"))) {
 			String line = new String();
 			while (br.ready()) {

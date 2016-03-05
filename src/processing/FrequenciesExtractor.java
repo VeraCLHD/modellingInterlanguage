@@ -5,13 +5,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FrequenciesExtractor {
 	
 	private static final String GIGAWORD_PATH = "frequencies/gigaword_frequencies.txt";
-	private static Map<String,Long> gigaWordFrequencies = new HashMap<String,Long>();
+	public static Map<String,Long> gigaWordFrequencies = new HashMap<String,Long>();
 	private static Long totalWordCount = 0L; 
 	
 	
@@ -24,16 +25,33 @@ public class FrequenciesExtractor {
 		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(GIGAWORD_PATH), "UTF-8"))) {
 			String line = new String();
 			while (br.ready()) {
-				line = br.readLine();
-				String[] frequencyLine = line.trim().split(" ");
-				String word = frequencyLine[1];
+				line = br.readLine().trim();
+				/*if(line.equals("64479 efficiency")){
+					String[] frequencyLine = line.split(" ");
+					System.out.println(Arrays.toString(frequencyLine));
+					for(String el: frequencyLine){
+						System.out.println(el.contains(" "));
+					}
+				}*/
+				String[] frequencyLine = line.split(" ");
+				String word = frequencyLine[1].trim();
 				if(word.matches(".*\\d+.*")){
 					word = "NUM";
-				} if (!word.matches("\\p{Punct}*")){
-					Long frequency = Long.parseLong(frequencyLine[0]);
-					FrequenciesExtractor.gigaWordFrequencies.putIfAbsent(word, frequency);
-					FrequenciesExtractor.totalWordCount += frequency;
+				} 
+				// !word.matches("\\p{Punct}*") && 
+				else if (!word.matches("[a-z]+.*")){
+					continue;
 				}
+				
+				Long frequency = Long.parseLong(frequencyLine[0].trim());
+				if(FrequenciesExtractor.gigaWordFrequencies.containsKey(word)){
+					Long originalFrequency = FrequenciesExtractor.gigaWordFrequencies.get(word);
+					FrequenciesExtractor.gigaWordFrequencies.put(word, originalFrequency + frequency);
+				} else{
+					FrequenciesExtractor.gigaWordFrequencies.put(word, frequency);
+				}
+				
+				FrequenciesExtractor.totalWordCount += frequency;
 				
 			}
 		} catch (IOException e) {
@@ -45,7 +63,8 @@ public class FrequenciesExtractor {
 	public static Double computeRelativeFrequencyForWord(String word){
 		Double sfi = 0.0;
 		if(gigaWordFrequencies.containsKey(word)){
-			Long realtiveFrequency = gigaWordFrequencies.get(word)/totalWordCount;
+			Long absoluteFrequency = gigaWordFrequencies.get(word);
+			Double realtiveFrequency = (double) absoluteFrequency /totalWordCount;
 			 sfi = 10*(Math.log10(realtiveFrequency)+10);
 		}
 		
@@ -64,8 +83,11 @@ public class FrequenciesExtractor {
 		this.gigaWordFrequencies = gigaWordFrequencies;
 	}
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		Long a = 644792L;
+		
+		Long b = 3945554028L;
+		Double c =  ((double)a/b);
+		System.out.println(c);
 	}
 
 }
