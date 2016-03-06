@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class FrequenciesExtractor {
 	
-	private static final String GIGAWORD_PATH = "frequencies/gigaword_frequencies.txt";
+	
 	public static Map<String,Long> gigaWordFrequencies = new HashMap<String,Long>();
 	private static Long totalWordCount = 0L; 
 	
@@ -22,7 +22,7 @@ public class FrequenciesExtractor {
 
 	public static void extractAbsoluteFrequenciesGigaword(){
 		System.out.println("Extracting word freqs gigaword");
-		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(GIGAWORD_PATH), "UTF-8"))) {
+		try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(Properties.GIGAWORD_PATH), "UTF-8"))) {
 			String line = new String();
 			while (br.ready()) {
 				line = br.readLine().trim();

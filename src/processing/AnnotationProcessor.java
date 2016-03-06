@@ -1,6 +1,7 @@
 package processing;
 
 import google.spellcheck.JazzyCorpusSpellchecker;
+import processing.Editor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,12 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+import com.swabunga.spell.engine.EditDistance;
 import com.swabunga.spell.engine.Word;
 
+
 public class AnnotationProcessor {
-	
-	private static final String ANNOTATED_PATH = "TOEFL/annotated/";
-	private static final String OUTPUT_PATH = "TOEFL/OUTPUT";
 	
 	
 	/**
@@ -73,7 +73,11 @@ public class AnnotationProcessor {
 	}
 	
 	public static void createInstancesAndOutput(){
-		List<String> filesInFolders = FileFilter_Toefl.findToeflFiles(new File(ANNOTATED_PATH));
+		// delete the files if existent
+		Editor.deleteFile(Properties.OUTPUT_PATH  + Properties.outputFile);
+		Editor.deleteFile(Properties.OUTPUT_PATH  + Properties.CORPUS_STATS);
+		
+		List<String> filesInFolders = FileFilter_Toefl.findToeflFiles(new File(Properties.ANNOTATED_PATH));
 		// id, L1, proficiency,prompt, test/train_dev, word, annotated, first_suggestion
 		System.out.println("create instances");
 		FrequenciesExtractor.extractAbsoluteFrequenciesGigaword();
@@ -85,25 +89,82 @@ public class AnnotationProcessor {
 			List<String> essayWords = new ArrayList<String>(toefl.getWordsForEssay());
 			List<String> annotations = AnnotationProcessor.extractAnnotationsList(essayWords);
 			
+			
+			List<String> relevantStats = new ArrayList<String>();
+			
+			Integer numFusionErrors = 0;
 			for(String annotation: annotations){
+				
 				List<String> misspellingAndSuggestion = AnnotationProcessor.processAnnotation(annotation);
 				
-				String spellCheckerSuggestion = JazzyCorpusSpellchecker.getSuggestionWithMinDistance(misspellingAndSuggestion.get(0).toLowerCase(), 0);
-				Double wordFrequency = FrequenciesExtractor.computeRelativeFrequencyForWord(misspellingAndSuggestion.get(1));
+				String misspelling = misspellingAndSuggestion.get(0).toLowerCase();
+				String suggestion = misspellingAndSuggestion.get(1);
+				Integer wordLength = suggestion.length();
 				
-				AnnotationProcessor.writeInstancesToFile(file, misspellingAndSuggestion,
-						spellCheckerSuggestion, wordFrequency);
+				if(misspelling.contains(" ") || suggestion.contains(" ")){
+					numFusionErrors +=1;
+				}
+				
+				Integer errorSeverity = EditDistance.getDistance(misspelling,suggestion.toString());
+				
+				String spellCheckerSuggestion = JazzyCorpusSpellchecker.getSuggestionWithMinDistance(misspelling, 0);
+				Double wordFrequency = FrequenciesExtractor.computeRelativeFrequencyForWord(suggestion);
+				
+				AnnotationProcessor.writeInstancesAnnotationOutput(file, misspellingAndSuggestion,
+						spellCheckerSuggestion, wordFrequency, errorSeverity, wordLength);
 			}
+			
+			relevantStats.add(Integer.toString(essayWords.size()));
+			relevantStats.add(Integer.toString(annotations.size()));
+			relevantStats.add(Integer.toString(numFusionErrors));
+			AnnotationProcessor.writeStats(file, relevantStats);
 		}
 		
 
 	}
 	
 
-	private static void writeInstancesToFile(String file,
+	private static void writeInstancesAnnotationOutput(String file,
 			List<String> misspellingAndSuggestion,
-			String spellCheckerSuggestion, Double wordFrequency) {
+			String spellCheckerSuggestion, Double wordFrequency, Integer errorSeverity, Integer wordLength) {
 		
+		List<String> lineOutput = extractInformationFromFilename(file);
+		
+		
+		lineOutput.add(misspellingAndSuggestion.get(0));
+		lineOutput.add(misspellingAndSuggestion.get(1));
+		
+		lineOutput.add(spellCheckerSuggestion.toString());
+		
+		lineOutput.add(String.valueOf(wordFrequency));
+		
+		lineOutput.add(String.valueOf(errorSeverity));
+		lineOutput.add(String.valueOf(wordLength));
+		
+		String line = "";
+		for(String element: lineOutput){
+			line += element + "\t"; 
+		}
+		Writer.appendLineToFile(line, Properties.OUTPUT_PATH + "/annotation_output.txt");
+	
+	}
+	
+	private static void writeStats(String file, List<String> relevantStats) {
+		
+		List<String> lineOutput = extractInformationFromFilename(file);
+		lineOutput.addAll(relevantStats);
+		
+		String line = "";
+		for(String element: lineOutput){
+			line += element + "\t"; 
+		}
+		
+		Writer.appendLineToFile(line, Properties.OUTPUT_PATH + Properties.CORPUS_STATS);
+	
+	}
+
+
+	private static List<String> extractInformationFromFilename(String file) {
 		List<String> lineOutput = new ArrayList<String>();
 		String[] filePath = file.split("\\\\");
 		file = filePath[filePath.length-1];
@@ -114,21 +175,7 @@ public class AnnotationProcessor {
 		lineOutput.add(elementsOfFile[3]);
 		lineOutput.add(elementsOfFile[1]);
 		lineOutput.add(elementsOfFile[0]);
-		
-		
-		lineOutput.add(misspellingAndSuggestion.get(0));
-		lineOutput.add(misspellingAndSuggestion.get(1));
-		
-		lineOutput.add(spellCheckerSuggestion.toString());
-		
-		lineOutput.add(String.valueOf(wordFrequency));			
-		
-		String line = "";
-		for(String element: lineOutput){
-			line += element + "\t"; 
-		}
-		Writer.appendLineToFile(line, OUTPUT_PATH + "/annotation_output.txt");
-	
+		return lineOutput;
 	}
 	
 	
@@ -136,7 +183,6 @@ public class AnnotationProcessor {
 	
 	public static void main(String[] args) {
 		AnnotationProcessor.createInstancesAndOutput();
-		//SSystem.out.println(Long.MAX_VALUE);
 	}
 
 
