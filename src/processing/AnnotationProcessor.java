@@ -130,9 +130,11 @@ public class AnnotationProcessor {
 		
 		List<String> lineOutput = extractInformationFromFilename(file);
 		
+		String misspelling = misspellingAndSuggestion.get(0);
+		String suggestion = misspellingAndSuggestion.get(1);
 		
-		lineOutput.add(misspellingAndSuggestion.get(0));
-		lineOutput.add(misspellingAndSuggestion.get(1));
+		lineOutput.add(misspelling);
+		lineOutput.add(suggestion);
 		
 		lineOutput.add(spellCheckerSuggestion.toString());
 		
@@ -140,6 +142,11 @@ public class AnnotationProcessor {
 		
 		lineOutput.add(String.valueOf(errorSeverity));
 		lineOutput.add(String.valueOf(wordLength));
+		if(misspelling.contains(" ") || suggestion.contains(" ")){
+			lineOutput.add("fusion");
+		} else{
+			lineOutput.add("-");
+		}
 		
 		String line = "";
 		for(String element: lineOutput){
