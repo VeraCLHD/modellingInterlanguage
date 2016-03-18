@@ -75,12 +75,5 @@ public class FrequenciesExtractor {
 	public void setGigaWordFrequencies(Map<String,Long> gigaWordFrequencies) {
 		this.gigaWordFrequencies = gigaWordFrequencies;
 	}
-	public static void main(String[] args) {
-		Long a = 644792L;
-		
-		Long b = 3945554028L;
-		Double c =  ((double)a/b);
-		System.out.println(c);
-	}
 
 }

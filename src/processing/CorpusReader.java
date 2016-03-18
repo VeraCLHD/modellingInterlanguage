@@ -68,10 +68,6 @@ public class CorpusReader {
 		return lines;
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(CorpusReader.readFileAsWordsList(GER_PATH + "test_P1_GER_high_10392.txt"));
-
-	}
 
 	public static String getFrePath() {
 		return FRE_PATH;
