@@ -26,13 +26,6 @@ public class FrequenciesExtractor {
 			String line = new String();
 			while (br.ready()) {
 				line = br.readLine().trim();
-				/*if(line.equals("64479 efficiency")){
-					String[] frequencyLine = line.split(" ");
-					System.out.println(Arrays.toString(frequencyLine));
-					for(String el: frequencyLine){
-						System.out.println(el.contains(" "));
-					}
-				}*/
 				String[] frequencyLine = line.split(" ");
 				String word = frequencyLine[1].trim();
 				if(word.matches(".*\\d+.*")){

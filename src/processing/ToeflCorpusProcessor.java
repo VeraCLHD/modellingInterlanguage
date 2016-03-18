@@ -44,11 +44,6 @@ public class ToeflCorpusProcessor {
 		}
 	}
 
-	public static void main(String[] args) {
-		System.out.println("Guests".matches(".*\\d+.*"));
-
-	}
-
 	public  Set<String> getWordsForEssay() {
 		return wordsForEssay;
 	}

@@ -1,6 +1,5 @@
 package processing;
 
-import google.spellcheck.JazzyCorpusSpellchecker;
 import processing.Editor;
 
 import java.io.BufferedReader;
@@ -13,6 +12,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import jazzy.spellcheck.JazzyCorpusSpellchecker;
 
 import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 import com.swabunga.spell.engine.EditDistance;
@@ -58,11 +59,6 @@ public class AnnotationProcessor {
 			}
 		} else{
 			originalWord = elementsOfAnnotation[0];
-		}
-		
-		if(annotatorSuggestion.contains("[space]") || originalWord.contains("[space]")){
-			//fusion error:was?
-			
 		}
 		
 		result.add(originalWord);
